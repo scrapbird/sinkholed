@@ -3,7 +3,6 @@ module github.com/scrapbird/sinkholed
 require (
 	github.com/asaskevich/EventBus v0.0.0-20180315140547-d46933a94f05 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/elastic/go-elasticsearch/v8 v8.0.0-20190507051833-e09a105a2b0a
 	github.com/flashmob/go-guerrilla v0.0.0-20190504150445-87453fe54c89
 	github.com/go-chi/chi v4.0.2+incompatible
