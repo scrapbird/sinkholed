@@ -1,0 +1,37 @@
+---
+## sinkholed default config
+#
+# Please provide the JWT secret key as an environment variable named SINKHOLED_JWT_SECRET
+
+# Address to bind API to
+# note: this is inside the docker container, we aren't binding to all adapters on host
+ListenAddr: 0.0.0.0:8080
+
+# Path to log to
+LogPath: /var/log/sinkholed.log
+# Log level
+LogLevel: info
+
+# Plugins to load
+Plugins:
+  "elasticsearch.so":
+    Addresses:
+      - http://elasticsearch:9200
+  "smtpd.so":
+    ListenAddress: 0.0.0.0:1337
+    # HostMetadata is used to override or add event metadata based on which host the mail came from.
+    # This is good for modifying incoming smtp events metadata based on which malware is being run on the host.
+    HostMetadata:
+      "127.0.0.1":
+        source_botnet: necurs
+        botnet_id: 9
+
+    # HostTags is used to add tags to the event metadata based on which host the mail came from.
+    # This is good for tagging incoming smtp events based on which malware is being run on the host.
+    HostTags:
+      "127.0.0.1":
+        - necurs
+
+  "samplefs.so":
+    DestDir: /var/lib/sinkholed/samples
+

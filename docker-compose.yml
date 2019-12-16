@@ -1,0 +1,74 @@
+version: '3.1'
+
+volumes:
+  esdata:
+    driver: local
+  samples:
+    driver: local
+  gomods:
+    driver: local
+
+networks:
+  sinkholed:
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.7.1
+    volumes:
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:9200/_cat/health"]
+      interval: 3s
+      timeout: 3s
+      retries: 80
+    networks:
+      - sinkholed
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.7.1
+    volumes:
+      - ./config/:/usr/share/kibana/config:ro
+    ports:
+      - "127.0.0.1:5601:5601"
+    networks:
+      - sinkholed
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/api/status"]
+      interval: 3s
+      timeout: 3s
+      retries: 80
+    depends_on:
+      - elasticsearch
+
+  sinkholed:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:1337:1337"
+    volumes:
+      - ./:/opt/sinkholed
+      - ./config/sinkholed.yml.dev:/etc/sinkholed/sinkholed.yml
+      - gomods:/root/go/pkg/mod
+      - samples:/var/lib/sinkholed/samples
+    environment:
+      - SINKHOLED_JWT_SECRET=${SINKHOLED_JWT_SECRET}
+    networks:
+      - sinkholed
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:8080/api/v1/healthcheck"]
+      interval: 3s
+      timeout: 3s
+      retries: 80
+    depends_on:
+      - elasticsearch
+

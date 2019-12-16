@@ -1,0 +1,30 @@
+http://localhost:8080
+
+# This file can be used as a test suite with: https://github.com/diepm/vim-rest-console.git
+
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJISHFpMVFEZmZNaHh4Q2Z2In0.vpcPndLcQwbIM2lnPm9e514_eeucd0Qk9v0NCvThYUQ
+
+// Healthcheck
+GET /api/v1/healthcheck
+{
+}
+
+// Posts a new event to the stream
+POST /api/v1/event
+{
+    "type": "email",
+    "timestamp": "2019-11-14T09:19:52.136Z",
+    "source": "smtp",
+    "metadata": {
+        "tags": [
+            "testbin",
+            "notmalware"
+        ]
+    },
+    "samples": [
+        { "data": "f0VMRgIBAQAAAAAAAAAAAAIAPgABAAAAIF5bAAAAAABAAAAAAAAAAEj0yAAAAAAAAAAAAEAAOAAK" },
+        { "data": "AEAAKgApAAYAAAAEAAAAQAAAAAAAAABAAEAAAAAAAEAAQAAAAAAAMAIAAAAAAAAwAgAAAAAAAAgA" },
+        { "data": "AAAAAAAAAwAAAAQAAABwAgAAAAAAAHACQAAAAAAAcAJAAAAAAAAcAAAAAAAAABwAAAAAAAAAAQAA" }
+    ]
+}
+
