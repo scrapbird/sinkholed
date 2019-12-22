@@ -27,7 +27,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = merge(var.tags, {
-    Name = "${var.project}-public-${count.index}"
+    Name = "${var.project}-${var.environment}-public-${count.index}"
   })
 }
 
@@ -40,7 +40,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.project}-public-route-table"
+    Name = "${var.project}-${var.environment}-public-route-table"
   })
 }
 
@@ -57,7 +57,7 @@ resource "aws_subnet" "private" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = merge(var.tags, {
-    Name = "${var.project}-private-${count.index}"
+    Name = "${var.project}-${var.environment}-private-${count.index}"
   })
 }
 

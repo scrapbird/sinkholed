@@ -10,3 +10,9 @@ variable "project" {
   type = string
   description = "The project name"
 }
+
+variable "environment" {
+  type = string
+  description = "The project environment (dev, qa, prod etc)"
+}
+
