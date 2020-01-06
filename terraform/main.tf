@@ -74,6 +74,7 @@ module "autoscalinggroup" {
   vpc_id               = module.network.vpc_id
   user_data            = data.template_file.user_data.rendered
   iam_instance_profile = module.iam_policies.ecs_instance_profile_id
+  ec2_instance_key     = "sinkholed-${var.environment}"
 
   tags = {
     managedBy   = "terraform"

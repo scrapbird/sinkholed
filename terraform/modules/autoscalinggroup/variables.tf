@@ -57,3 +57,8 @@ variable "iam_instance_profile" {
   description = "IAM instance profile ID to use for the launch configuration"
 }
 
+variable "ec2_instance_key" {
+  type        = string
+  description = "The ssh key to use for the ec2 instances"
+}
+

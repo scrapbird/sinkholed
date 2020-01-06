@@ -14,6 +14,19 @@
                 "ecs:StartTask"
             ],
             "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:*:log-group:/sinkholed/*",
+                "arn:aws:logs:*:*:log-group:/sinkholed/*:log-stream:*"
+            ]
         }
     ]
 }

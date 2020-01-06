@@ -5,6 +5,7 @@ resource "aws_launch_configuration" "main" {
   security_groups      = [var.securitygroup_id]
   user_data            = var.user_data
   iam_instance_profile = var.iam_instance_profile
+  key_name             = var.ec2_instance_key
 
   lifecycle {
     create_before_destroy = true
