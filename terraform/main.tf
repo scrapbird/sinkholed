@@ -10,7 +10,7 @@ module "network" {
 }
 
 resource "aws_security_group" "clustersg" {
-  name        = "sinkholed-${var.environment}-clustersg"
+  name        = "sinkholed-${var.environment}-cluster-sg"
   description = "Allow incoming traffic to the sinkholed-${var.environment} cluster instances."
   vpc_id      = module.network.vpc_id
   ingress {
@@ -57,18 +57,23 @@ module "cluster" {
   }
 }
 
+module "iam_policies" {
+  source = "./modules/iam"
+}
+
 module "autoscalinggroup" {
-  source           = "./modules/autoscalinggroup"
-  project          = "sinkholed"
-  environment      = var.environment
-  securitygroup_id = aws_security_group.clustersg.id
-  min_size         = 1
-  max_size         = 1
-  ami              = data.aws_ami.latest_ecs.id
-  instance_type    = "t2.micro"
-  subnets          = module.network.private_subnets
-  vpc_id           = module.network.vpc_id
-  user_data        = data.template_file.user_data.rendered
+  source               = "./modules/autoscalinggroup"
+  project              = "sinkholed"
+  environment          = var.environment
+  securitygroup_id     = aws_security_group.clustersg.id
+  min_size             = 1
+  max_size             = 1
+  ami                  = data.aws_ami.latest_ecs.id
+  instance_type        = "t2.micro"
+  subnets              = module.network.public_subnets
+  vpc_id               = module.network.vpc_id
+  user_data            = data.template_file.user_data.rendered
+  iam_instance_profile = module.iam_policies.ecs_instance_profile_id
 
   tags = {
     managedBy   = "terraform"

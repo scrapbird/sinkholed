@@ -8,11 +8,10 @@ ln -fs /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 yum install -y awslogs jq aws-cli
 
 # ECS config
-echo '' > /etc/ecs/ecs.config
-{
-  echo "ECS_CLUSTER=${cluster_name}"
-  echo 'ECS_AVAILABLE_LOGGING_DRIVERS="[\"json-file\",\"awslogs\"]"'
-} >> /etc/ecs/ecs.config
+cat <<'EOF' >> /etc/ecs/ecs.config
+ECS_CLUSTER=${cluster_name}
+ECS_AVAILABLE_LOGGING_DRIVERS="[\"json-file\",\"awslogs\"]"
+EOF
 
 # Inject the CloudWatch Logs configuration file contents
 cat > /etc/awslogs/awslogs.conf <<- EOF

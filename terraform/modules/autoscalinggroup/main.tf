@@ -1,9 +1,14 @@
 resource "aws_launch_configuration" "main" {
-  name            = "${var.project}-${var.environment}"
-  instance_type   = var.instance_type
-  image_id        = var.ami // TODO Check this
-  security_groups = [var.securitygroup_id]
-  user_data       = var.user_data
+  name_prefix          = "${var.project}-${var.environment}"
+  instance_type        = var.instance_type
+  image_id             = var.ami
+  security_groups      = [var.securitygroup_id]
+  user_data            = var.user_data
+  iam_instance_profile = var.iam_instance_profile
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_autoscaling_group" "main" {

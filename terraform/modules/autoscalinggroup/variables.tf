@@ -52,3 +52,8 @@ variable "vpc_id" {
   description = "ID of the VPC to use"
 }
 
+variable "iam_instance_profile" {
+  type        = string
+  description = "IAM instance profile ID to use for the launch configuration"
+}
+
