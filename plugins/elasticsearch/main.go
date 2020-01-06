@@ -72,6 +72,10 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
     log.Println("Initializing elasticsearch plugin")
     p.events = make(chan *core.Event)
 
+    // Enable env variable overrides
+    cfg.SetEnvPrefix("SINKHOLED_ES")
+    cfg.AutomaticEnv()
+
     // Parse the config
     var c config
     cfg.Unmarshal(&c)

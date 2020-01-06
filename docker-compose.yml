@@ -60,8 +60,7 @@ services:
       - ./config/sinkholed.yml.dev:/etc/sinkholed/sinkholed.yml
       - gomods:/root/go/pkg/mod
       - samples:/var/lib/sinkholed/samples
-    environment:
-      - SINKHOLED_JWT_SECRET=${SINKHOLED_JWT_SECRET}
+    env_file: .env
     networks:
       - sinkholed
     healthcheck:

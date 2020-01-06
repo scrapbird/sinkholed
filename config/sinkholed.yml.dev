@@ -15,6 +15,8 @@ LogLevel: info
 # Plugins to load
 Plugins:
   "bin/elasticsearch.so":
+    # This can also be provided as an env variable:
+    # SINKHOLED_ES_ADDRESSES=http://host1:9200,http://host2:9200
     Addresses:
       - http://elasticsearch:9200
   "bin/smtpd.so":
