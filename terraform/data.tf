@@ -17,8 +17,8 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/templates/user_data.sh")}"
 
   vars = {
-    cluster_name  = module.cluster.cluster_name
-    cloudwatch_prefix = "/sinkholed"
+    cluster_name      = module.cluster.cluster_name
+    cloudwatch_prefix = "/sinkholed-${var.environment}"
   }
 }
 

@@ -14,6 +14,12 @@ resource "aws_security_group" "clustersg" {
   description = "Allow incoming traffic to the sinkholed-${var.environment} cluster instances."
   vpc_id      = module.network.vpc_id
   ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.cidr_blocks
+  }
+  ingress {
     from_port   = 53
     to_port     = 53
     protocol    = "udp"
@@ -41,7 +47,7 @@ resource "aws_security_group" "clustersg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = var.cidr_blocks
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -63,8 +69,29 @@ module "cluster" {
   }
 }
 
+module "jwt_secret" {
+  source = "./modules/secret"
+  name   = "sinkholed/${var.environment}/jwt_secret"
+
+  tags = {
+    managedBy   = "terraform"
+    environment = var.environment
+    project     = "sinkholed"
+  }
+}
+
 module "iam_policies" {
-  source = "./modules/iam"
+  source            = "./modules/iam"
+  project           = "sinkholed"
+  environment       = var.environment
+  cloudwatch_prefix = "sinkholed-${var.environment}"
+  jwt_secret        = module.jwt_secret.secret_arn
+
+  tags = {
+    managedBy   = "terraform"
+    environment = var.environment
+    project     = "sinkholed"
+  }
 }
 
 module "autoscalinggroup" {
@@ -102,6 +129,8 @@ module "service" {
   cpu                    = 512
   memory                 = 128
   image_url              = var.image_url
+  container_log_group    = "/sinkholed-${var.environment}/service"
+  execution_role_arn     = module.iam_policies.ecs_execution_role_arn
 
   container_port_mappings = [
     {
@@ -123,6 +152,13 @@ module "service" {
       containerPort = 2525
       hostPort      = 2525
       protocol      = "tcp"
+    }
+  ]
+
+  container_secrets_configuration = [
+    {
+      name      = "SINKHOLED_JWT_SECRET",
+      valueFrom = module.jwt_secret.secret_arn
     }
   ]
 

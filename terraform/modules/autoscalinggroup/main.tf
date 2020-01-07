@@ -19,7 +19,6 @@ resource "aws_autoscaling_group" "main" {
   max_size             = var.max_size
   vpc_zone_identifier  = var.subnets
 
-  # tags = [data.null_data_source.asg_tags.*.outputs]
   dynamic "tag" {
     for_each = var.tags
 

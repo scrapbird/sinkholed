@@ -24,8 +24,8 @@
                 "logs:DescribeLogStreams"
             ],
             "Resource": [
-                "arn:aws:logs:*:*:log-group:/sinkholed/*",
-                "arn:aws:logs:*:*:log-group:/sinkholed/*:log-stream:*"
+                "arn:aws:logs:*:*:log-group:/${cloudwatch_prefix}/*",
+                "arn:aws:logs:*:*:log-group:/${cloudwatch_prefix}/*:log-stream:*"
             ]
         }
     ]

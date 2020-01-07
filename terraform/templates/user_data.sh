@@ -10,14 +10,14 @@ yum install -y awslogs jq aws-cli
 # ECS config
 cat <<'EOF' >> /etc/ecs/ecs.config
 ECS_CLUSTER=${cluster_name}
-ECS_AVAILABLE_LOGGING_DRIVERS="[\"json-file\",\"awslogs\"]"
+ECS_AVAILABLE_LOGGING_DRIVERS=["json-file","awslogs"]
 EOF
 
 # Inject the CloudWatch Logs configuration file contents
 cat > /etc/awslogs/awslogs.conf <<- EOF
 [general]
-state_file = /var/lib/awslogs/agent-state        
- 
+state_file = /var/lib/awslogs/agent-state
+
 [/var/log/dmesg]
 file = /var/log/dmesg
 log_group_name = ${cloudwatch_prefix}/var/log/dmesg
@@ -53,7 +53,7 @@ EOF
 region=$(curl 169.254.169.254/latest/meta-data/placement/availability-zone | sed s'/.$//')
 sed -i -e "s/region = us-east-1/region = $region/g" /etc/awslogs/awscli.conf
 
-# Set the ip address of the node 
+# Set the ip address of the node
 container_instance_id=$(curl 169.254.169.254/latest/meta-data/local-ipv4)
 sed -i -e "s/{container_instance_id}/$container_instance_id/g" /etc/awslogs/awslogs.conf
 
@@ -65,12 +65,12 @@ start on started ecs
 script
 	exec 2>>/var/log/ecs/cloudwatch-logs-start.log
 	set -x
-	
+
 	until curl -s http://localhost:51678/v1/metadata
 	do
-		sleep 1	
+		sleep 1
 	done
-	
+
 	service awslogs start
 	chkconfig awslogs on
 end script

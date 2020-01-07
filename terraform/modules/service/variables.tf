@@ -39,6 +39,18 @@ variable "container_port_mappings" {
   }))
 }
 
+variable "container_secrets_configuration" {
+  type = list(object({
+    name      = string
+    valueFrom = string
+  }))
+}
+
+variable "execution_role_arn" {
+  type        = string
+  description = "ARN for the ecs execution role"
+}
+
 variable "desired_count" {
   description = "Desired count of tasks to run"
 }
@@ -71,3 +83,9 @@ variable "essential" {
   description = "Whether or not to mark the service as essential"
   default     = true
 }
+
+variable "container_log_group" {
+  type        = string
+  description = "Log group to use for the service container logs"
+}
+
