@@ -1,6 +1,7 @@
 resource "aws_ecs_task_definition" "main" {
   family             = var.task_definition_family
   execution_role_arn = var.execution_role_arn
+  task_role_arn      = var.task_role_arn
   container_definitions = replace(jsonencode([
     {
       name             = var.name
@@ -11,6 +12,7 @@ resource "aws_ecs_task_definition" "main" {
       portMappings     = var.container_port_mappings
       logConfiguration = local.container_log_configuration
       secrets          = var.container_secrets_configuration
+      environment      = var.container_environment
     }
   ]), "/\"([0-9]+\\.?[0-9]*)\"/", "$1")
 }
@@ -21,10 +23,12 @@ resource "aws_cloudwatch_log_group" "service_log_group" {
 }
 
 resource "aws_ecs_service" "main" {
-  name            = var.name
-  desired_count   = var.desired_count
-  task_definition = aws_ecs_task_definition.main.id
-  cluster         = var.cluster
+  name                               = var.name
+  desired_count                      = var.desired_count
+  task_definition                    = aws_ecs_task_definition.main.id
+  cluster                            = var.cluster
+  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
+  deployment_maximum_percent         = var.deployment_maximum_percent
 
   # Need to opt in to new ARN format to use tags on services
   # https://aws.amazon.com/blogs/compute/migrating-your-amazon-ecs-deployment-to-the-new-arn-and-resource-id-format-2/

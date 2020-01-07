@@ -1,4 +1,4 @@
-# sinkholed
+[[#]] sinkholed
 
 A sinkhole for collecting and analysing malicious traffic.
 

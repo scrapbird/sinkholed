@@ -22,3 +22,7 @@ data "template_file" "user_data" {
   }
 }
 
+data "aws_ecr_repository" "service" {
+  name = var.ecr_repository
+}
+

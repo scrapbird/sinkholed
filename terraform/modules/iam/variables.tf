@@ -18,6 +18,16 @@ variable "jwt_secret" {
   description = "The ARN of the secrets manager secret used to store the JWT"
 }
 
+variable "ecr_repository" {
+  type        = string
+  description = "The ARN of the ecr repository to use for deployments"
+}
+
+variable "elasticsearch_domain_arn" {
+  type        = string
+  description = "The ARN of the elasticsearch domain"
+}
+
 variable "tags" {
   type        = map
   description = "Global list of tags to apply to all resources"

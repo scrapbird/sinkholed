@@ -1,5 +1,6 @@
 module "network" {
-  source      = "./modules/network"
+  source = "./modules/network"
+
   project     = "sinkholed"
   environment = var.environment
   tags = {
@@ -26,8 +27,8 @@ resource "aws_security_group" "clustersg" {
     cidr_blocks = var.cidr_blocks
   }
   ingress {
-    from_port   = 2525
-    to_port     = 2525
+    from_port   = 1337
+    to_port     = 1337
     protocol    = "tcp"
     cidr_blocks = var.cidr_blocks
   }
@@ -58,7 +59,8 @@ resource "aws_security_group" "clustersg" {
 }
 
 module "cluster" {
-  source      = "./modules/cluster"
+  source = "./modules/cluster"
+
   project     = "sinkholed"
   environment = var.environment
 
@@ -71,7 +73,8 @@ module "cluster" {
 
 module "jwt_secret" {
   source = "./modules/secret"
-  name   = "sinkholed/${var.environment}/jwt_secret"
+
+  name = "sinkholed/${var.environment}/jwt_secret"
 
   tags = {
     managedBy   = "terraform"
@@ -80,12 +83,30 @@ module "jwt_secret" {
   }
 }
 
+module "elasticsearch" {
+  source = "./modules/elasticsearch"
+
+  vpc    = module.network.vpc_id
+  domain = "sinkholed-${var.environment}"
+
+  # Can only use 1 subnet because 1 node
+  subnet_ids            = [module.network.private_subnets[0]]
+  instance_type         = "t2.small.elasticsearch"
+  instance_count        = 1
+  volume_type           = "gp2"
+  volume_size           = 30
+  elasticsearch_version = "6.7"
+}
+
 module "iam_policies" {
-  source            = "./modules/iam"
-  project           = "sinkholed"
-  environment       = var.environment
-  cloudwatch_prefix = "sinkholed-${var.environment}"
-  jwt_secret        = module.jwt_secret.secret_arn
+  source = "./modules/iam"
+
+  project                  = "sinkholed"
+  environment              = var.environment
+  cloudwatch_prefix        = "sinkholed-${var.environment}"
+  jwt_secret               = module.jwt_secret.arn
+  ecr_repository           = data.aws_ecr_repository.service.arn
+  elasticsearch_domain_arn = module.elasticsearch.arn
 
   tags = {
     managedBy   = "terraform"
@@ -95,7 +116,8 @@ module "iam_policies" {
 }
 
 module "autoscalinggroup" {
-  source               = "./modules/autoscalinggroup"
+  source = "./modules/autoscalinggroup"
+
   project              = "sinkholed"
   environment          = var.environment
   securitygroup_id     = aws_security_group.clustersg.id
@@ -117,20 +139,29 @@ module "autoscalinggroup" {
 }
 
 module "service" {
-  source                 = "./modules/service"
-  project                = "sinkholed"
-  environment            = var.environment
-  name                   = "sinkholed-${var.environment}"
-  cluster                = module.cluster.cluster_name
-  max_count              = 1
-  min_count              = 1
-  desired_count          = 1
-  task_definition_family = "sinkholed"
-  cpu                    = 512
-  memory                 = 128
-  image_url              = var.image_url
-  container_log_group    = "/sinkholed-${var.environment}/service"
-  execution_role_arn     = module.iam_policies.ecs_execution_role_arn
+  source = "./modules/service"
+
+  project                            = "sinkholed"
+  environment                        = var.environment
+  name                               = "sinkholed-${var.environment}"
+  cluster                            = module.cluster.cluster_name
+  max_count                          = 1
+  min_count                          = 1
+  desired_count                      = 1
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
+  task_definition_family             = "sinkholed"
+  cpu                                = 512
+  memory                             = 128
+  image_url                          = format("%s:%s", data.aws_ecr_repository.service.repository_url, var.image_tag)
+  container_log_group                = "/sinkholed-${var.environment}/service"
+  execution_role_arn                 = module.iam_policies.ecs_execution_role_arn
+  task_role_arn                      = module.iam_policies.ecs_task_role_arn
+
+  container_environment = [{
+    name  = "SINKHOLED_ES_ADDRESSES"
+    value = "https://${module.elasticsearch.endpoint}"
+  }]
 
   container_port_mappings = [
     {
@@ -149,8 +180,8 @@ module "service" {
       protocol      = "tcp"
     },
     {
-      containerPort = 2525
-      hostPort      = 2525
+      containerPort = 1337
+      hostPort      = 1337
       protocol      = "tcp"
     }
   ]
@@ -158,7 +189,7 @@ module "service" {
   container_secrets_configuration = [
     {
       name      = "SINKHOLED_JWT_SECRET",
-      valueFrom = module.jwt_secret.secret_arn
+      valueFrom = module.jwt_secret.arn
     }
   ]
 

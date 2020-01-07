@@ -39,6 +39,13 @@ variable "container_port_mappings" {
   }))
 }
 
+variable "container_environment" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+}
+
 variable "container_secrets_configuration" {
   type = list(object({
     name      = string
@@ -51,6 +58,11 @@ variable "execution_role_arn" {
   description = "ARN for the ecs execution role"
 }
 
+variable "task_role_arn" {
+  type        = string
+  description = "ARN for the ecs task role"
+}
+
 variable "desired_count" {
   description = "Desired count of tasks to run"
 }
@@ -61,6 +73,16 @@ variable "max_count" {
 
 variable "min_count" {
   description = "Min count of tasks to run"
+}
+
+variable "deployment_minimum_healthy_percent" {
+  description = "Min healthy percent configuration for ECS service. If only running 1 task at maximum cluster capacity set this to 0."
+  default     = 0
+}
+
+variable "deployment_maximum_percent" {
+  description = "Maximum percent usage of cluster to use as an upper limit for deployments. If running cluster as maximum capacity set this to 100"
+  default     = 100
 }
 
 variable "image_url" {

@@ -19,6 +19,22 @@
                 "secretsmanager:GetSecretValue"
             ],
             "Resource": "${jwt_secret}"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage"
+            ],
+            "Resource": "${ecr_repo_arn}"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken"
+            ],
+            "Resource": "*"
         }
     ]
 }

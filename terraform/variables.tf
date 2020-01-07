@@ -17,7 +17,12 @@ variable "cidr_blocks" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "image_url" {
+variable "ecr_repository" {
   type        = string
-  description = "The URL to the docker build to run (ECR)"
+  description = "The name of the ECR repository to deploy from"
+}
+
+variable "image_tag" {
+  type        = string
+  description = "The tagged image to deploy"
 }

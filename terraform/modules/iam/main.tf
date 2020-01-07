@@ -33,17 +33,24 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
     {
       cloudwatch_prefix = var.cloudwatch_prefix
       jwt_secret        = var.jwt_secret
+      ecr_repo_arn      = var.ecr_repository
     }
   )
   role = aws_iam_role.ecs_task_execution_role.id
 }
 
-# resource "aws_iam_role" "ecs_task_role" {
-#   name = "${var.project}-${var.environment}-task-role"
-#   policy = templatefile("${path.module}/policies/ecs-task-role.json.tpl",
-#     {
-#       cloudwatch_prefix = var.cloudwatch_prefix
-#     }
-#   )
-# }
+resource "aws_iam_role" "ecs_task_role" {
+  name               = "${var.project}-${var.environment}-task-role"
+  assume_role_policy = file("${path.module}/policies/ecs-task-execution-role-assume-policy.json")
+}
+
+resource "aws_iam_role_policy" "ecs_task_role_policy" {
+  name = "${var.project}-${var.environment}-task-execution-role-policy"
+  policy = templatefile("${path.module}/policies/ecs-task-role-policy.json.tpl",
+    {
+      elasticsearch_domain_arn = var.elasticsearch_domain_arn
+    }
+  )
+  role = aws_iam_role.ecs_task_role.id
+}
 
