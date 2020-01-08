@@ -1,6 +1,6 @@
 # Sinkholed AWS Configuration 
 
-A collection of terraform templates that can be used to bring up a production read implementation of sinkholed on AWS.
+A collection of terraform templates that can be used to bring up a production ready implementation of sinkholed on AWS.
 
 **Note:** This is a work in progress. It is mainly all here but it needs polish. I did the bulk of this in a day so there is still work to do.
 
