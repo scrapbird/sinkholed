@@ -21,15 +21,26 @@ RUN ./build.sh
 
 FROM alpine
 
+# Add sinkholed user and group
+RUN addgroup -S sinkholed \
+    && adduser -S sinkholed -G sinkholed
+
 RUN mkdir -p /var/lib/sinkholed/samples
 VOLUME /var/lib/sinkholed/samples
 
-COPY --from=build /opt/sinkholed/bin/* /opt/sinkholed/
+RUN mkdir -p /usr/local/lib/sinkholed
+COPY --from=build /opt/sinkholed/bin/*.so /usr/local/lib/sinkholed/
+
+COPY --from=build /opt/sinkholed/bin/sinkholed /usr/local/bin/sinkholed
 
 COPY ./config/sinkholed.yml /etc/sinkholed/sinkholed.yml
-COPY ./entrypoint.sh /opt/sinkholed/entrypoint.sh
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
 
-WORKDIR /opt/sinkholed
+# Create log dir and set permissions
+RUN mkdir /var/log/sinkholed \
+    && chown sinkholed:sinkholed /var/log/sinkholed
 
-ENTRYPOINT /opt/sinkholed/entrypoint.sh /opt/sinkholed/sinkholed /var/log/sinkholed.log
+USER sinkholed
+
+ENTRYPOINT /usr/local/bin/entrypoint.sh /usr/local/bin/sinkholed /var/log/sinkholed/sinkholed.log
 

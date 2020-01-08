@@ -4,6 +4,7 @@ import (
     "flag"
     "net/http"
     "os"
+    "path/filepath"
 
     log "github.com/sirupsen/logrus"
 
@@ -78,7 +79,7 @@ func main() {
     pluginManager := plugin.NewPluginManager(cfg)
     pluginManager.Init()
 
-    for pluginPath, pluginCfg := range cfg.PluginConfigs {
+    for pluginName, pluginCfg := range cfg.PluginConfigs {
         // Inject log path and log level if they haven't already been set in plugin config
         if pluginCfg.GetString("LogPath") == "" {
             pluginCfg.Set("LogPath", cfg.LogPath)
@@ -87,7 +88,7 @@ func main() {
             pluginCfg.Set("LogLevel", cfg.LogLevel)
         }
 
-        pluginManager.LoadPlugin(pluginPath, pluginCfg)
+        pluginManager.LoadPlugin(filepath.Join(cfg.PluginsPath, pluginName + ".so"), pluginCfg)
     }
 
     // Initialize router and start API server

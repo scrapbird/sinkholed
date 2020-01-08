@@ -12,10 +12,11 @@ type Plugin struct{
 }
 
 type Constants struct {
-    ListenAddr string
-    JwtSecret  string
-    LogPath    string
-    LogLevel   string
+    ListenAddr  string
+    JwtSecret   string
+    LogPath     string
+    LogLevel    string
+    PluginsPath string
 }
 
 type Config struct {
