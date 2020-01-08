@@ -8,16 +8,18 @@
 ListenAddr: 0.0.0.0:8080
 
 # Path to log to
-LogPath: /var/log/sinkholed.log
+LogPath: /var/log/sinkholed/sinkholed.log
 # Log level
 LogLevel: info
 
-# Plugins to load
+# Path to directory to load plugins from
+PluginsPath: /usr/local/lib/sinkholed
+# Plugins to load (calculated by $PluginsPath/$PLUGIN.so
 Plugins:
-  "elasticsearch.so":
+  "elasticsearch":
     Addresses:
       - http://elasticsearch:9200
-  "smtpd.so":
+  "smtpd":
     ListenAddress: 0.0.0.0:1337
     # HostMetadata is used to override or add event metadata based on which host the mail came from.
     # This is good for modifying incoming smtp events metadata based on which malware is being run on the host.
@@ -32,6 +34,6 @@ Plugins:
       "127.0.0.1":
         - necurs
 
-  "samplefs.so":
+  "samplefs":
     DestDir: /var/lib/sinkholed/samples
 
