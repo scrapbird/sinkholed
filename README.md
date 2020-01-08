@@ -87,12 +87,13 @@ Instructions on developing sinkholed plugins can be found in the [plugin documen
 The sinkholed config file is a yaml file that by default lives in `/etc/sinkholed/sinkholed.yml`. You can launch sinkholed with a different config file by passing it the `-config` flag. The config file can have the following values:
 
 
-| Config var | Description                                                                                     |
-| -          | -                                                                                               |
-| ListenAddr | The address to bind the API to, in the format: `host:port`                                      |
-| LogPath    | Path to the log file                                                                            |
-| LogLevel   | Threshold to be met before a log event is logged                                                |
-| Plugins    | A map of plugin config objects, using the path to the plugin `.so` file to be loaded as the key |
+| Config var  | Description                                                                |
+| -           | -                                                                          |
+| ListenAddr  | The address to bind the API to, in the format: `host:port`                 |
+| LogPath     | Path to the log file                                                       |
+| LogLevel    | Threshold to be met before a log event is logged                           |
+| PluginsPath | The directory to look for plugin files in                                  |
+| Plugins     | A map of plugin config objects, using the plugin file name minus the `.so` |
 
 ### Configuring plugins
 
@@ -133,13 +134,13 @@ When building sinkholed without making any changes to the plugins you should see
 
 ### Installing
 
-You can install `sinkholed` and its accompanying plugins wherever you like. Just ensure that the config map in the `Plugins` section of the config file points to the correct path of the desired plugin. Here is an example installation:
+You can install `sinkholed` and its accompanying plugins wherever you like. Here is an example installation:
 
 - elasticsearch.so: `/usr/local/lib/sinkholed/elasticsearch.so`
 - samplefs.so: `/usr/local/lib/sinkholed/samplefs.so`
+- smtpd.so: `/usr/local/lib/sinkholed/smtpd.so`
 - sinkholecli: `/usr/local/bin/sinkholecli`
 - sinkholed: `/usr/local/bin/sinkholed`
-- smtpd.so: `/usr/local/lib/sinkholed/smtpd.so`
 
 And here is an accompanying config file, placed in `/etc/sinkholed/sinkholed.yml` that uses the above install locations:
 
@@ -159,13 +160,14 @@ LogPath: /var/log/sinkholed.log
 LogLevel: info
 
 # Plugins to load
+PluginsPath: /usr/local/lib/sinkholed
 Plugins:
-  "/usr/local/lib/sinkholed/elasticsearch.so":
+  "elasticsearch":
     Addresses:
       - http://elasticsearch:9200
-  "/usr/local/lib/sinkholed/smtpd.so":
+  "smtpd":
     ListenAddress: 0.0.0.0:1337
-  "/usr/local/lib/sinkholed/samplefs.so":
+  "samplefs":
     DestDir: /var/lib/sinkholed/samples
 ```
 
