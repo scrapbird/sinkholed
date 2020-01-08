@@ -10,4 +10,6 @@ A collection of terraform templates that can be used to bring up a production re
 * Check all security group policies
 * Revisit module boundries / variables
 * Fix: "Error indexing event: x509: certificate signed by unknown authority"
+* Implment load balancer
+* Change config mapping key to something easy (what was I thinking?)
 
