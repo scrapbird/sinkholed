@@ -6,7 +6,7 @@
                 "es:*"
             ],
             "Resource": [
-                "${elasticsearch_domain_arn}"
+                "${elasticsearch_domain_arn}/*"
             ]
         }
     ]

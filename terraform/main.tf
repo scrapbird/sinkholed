@@ -186,14 +186,20 @@ module "service" {
     }
   ]
 
-  container_environment = [{
-    name  = "SINKHOLED_ES_ADDRESSES"
-    value = "https://${module.elasticsearch.endpoint}"
-  }]
+  container_environment = [
+    {
+      name  = "SINKHOLED_ES_ADDRESSES"
+      value = "https://${module.elasticsearch.endpoint}"
+    },
+    {
+      name  = "SINKHOLED_ES_AWS",
+      value = true
+    }
+  ]
 
   container_secrets_configuration = [
     {
-      name      = "SINKHOLED_JWT_SECRET",
+      name      = "SINKHOLED_JWTSECRET",
       valueFrom = module.jwt_secret.arn
     }
   ]
