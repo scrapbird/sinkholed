@@ -17,8 +17,6 @@ import (
 
     "github.com/scrapbird/sinkholed/pkg/core"
     "github.com/scrapbird/sinkholed/pkg/plugin"
-
-    "github.com/smartystreets/go-aws-auth"
 )
 
 const indexMapping = `{
