@@ -69,8 +69,6 @@ resource "aws_lb_listener" "main" {
   }
 
   depends_on = [aws_lb_target_group.main]
-
-  tags = tags
 }
 
 resource "aws_ecs_service" "main" {
