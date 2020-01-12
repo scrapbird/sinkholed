@@ -1,6 +1,6 @@
-variable "name" {
+variable "name_prefix" {
   type        = string
-  description = "The name of the secret"
+  description = "The name prefix of the secret"
 }
 
 variable "tags" {

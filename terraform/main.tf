@@ -24,25 +24,25 @@ resource "aws_security_group" "clustersg" {
     from_port   = 53
     to_port     = 53
     protocol    = "udp"
-    cidr_blocks = var.cidr_blocks
+    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
   }
   ingress {
     from_port   = 1337
     to_port     = 1337
     protocol    = "tcp"
-    cidr_blocks = var.cidr_blocks
+    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
   }
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = var.cidr_blocks
+    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
   }
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = var.cidr_blocks
+    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
   }
   egress {
     from_port   = 0
@@ -74,7 +74,7 @@ module "cluster" {
 module "jwt_secret" {
   source = "./modules/secret"
 
-  name = "sinkholed/${var.environment}/jwt_secret"
+  name_prefix = "sinkholed/${var.environment}/jwt_secret/"
 
   tags = {
     managedBy   = "terraform"
@@ -144,6 +144,7 @@ module "service" {
   project                            = "sinkholed"
   environment                        = var.environment
   name                               = "sinkholed-${var.environment}"
+  vpc_id                             = module.network.vpc_id
   cluster                            = module.cluster.cluster_name
   max_count                          = 1
   min_count                          = 1
@@ -157,34 +158,38 @@ module "service" {
   container_log_group                = "/sinkholed-${var.environment}/service"
   execution_role_arn                 = module.iam_policies.ecs_execution_role_arn
   task_role_arn                      = module.iam_policies.ecs_task_role_arn
+  subnets                            = module.network.public_subnets
+  allow_security_groups              = [aws_security_group.clustersg.id]
 
-  container_environment = [{
-    name  = "SINKHOLED_ES_ADDRESSES"
-    value = "https://${module.elasticsearch.endpoint}"
-  }]
+  healthcheck_port = "tcp:1337"
 
   container_port_mappings = [
-    {
-      containerPort = 53
-      hostPort      = 53
-      protocol      = "udp"
-    },
-    {
-      containerPort = 80
-      hostPort      = 80
-      protocol      = "tcp"
-    },
-    {
-      containerPort = 443
-      hostPort      = 443
-      protocol      = "tcp"
-    },
+    # {
+    #   containerPort = 53
+    #   hostPort      = 53
+    #   protocol      = "udp"
+    # },
+    # {
+    #   containerPort = 80
+    #   hostPort      = 80
+    #   protocol      = "tcp"
+    # },
+    # {
+    #   containerPort = 443
+    #   hostPort      = 443
+    #   protocol      = "tcp"
+    # },
     {
       containerPort = 1337
       hostPort      = 1337
       protocol      = "tcp"
     }
   ]
+
+  container_environment = [{
+    name  = "SINKHOLED_ES_ADDRESSES"
+    value = "https://${module.elasticsearch.endpoint}"
+  }]
 
   container_secrets_configuration = [
     {

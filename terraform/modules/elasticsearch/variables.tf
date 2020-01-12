@@ -1,5 +1,3 @@
-variable "vpc" {}
-
 variable "tags" {
   type        = map
   description = "Global list of tags to apply to all resources"
@@ -7,6 +5,8 @@ variable "tags" {
     managedBy = "terraform"
   }
 }
+
+variable "vpc" {}
 
 variable "domain" {
   type        = string

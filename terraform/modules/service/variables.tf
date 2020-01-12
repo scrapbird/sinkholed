@@ -111,3 +111,28 @@ variable "container_log_group" {
   description = "Log group to use for the service container logs"
 }
 
+variable "healthcheck_port" {
+  description = "protocol:port health check specification. Example: udp:1000"
+}
+
+variable "cidr_blocks" {
+  type        = list
+  description = "The CIDR blocks to allow access to service ports."
+  default     = ["0.0.0.0/0"]
+}
+
+variable "subnets" {
+  type        = list(string)
+  description = "List of subnets to use for the load balancer group"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "The ID of the VPC the service will reside in"
+}
+
+variable "allow_security_groups" {
+  type        = list
+  description = "A list of security groups to allow access to the mapped ports"
+}
+

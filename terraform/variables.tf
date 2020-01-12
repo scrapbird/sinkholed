@@ -26,3 +26,4 @@ variable "image_tag" {
   type        = string
   description = "The tagged image to deploy"
 }
+

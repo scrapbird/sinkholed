@@ -18,3 +18,8 @@ output "public_subnets" {
   value       = aws_subnet.public.*.id
 }
 
+output "cidr" {
+  description = "The VPC CIDR"
+  value       = var.cidr
+}
+
