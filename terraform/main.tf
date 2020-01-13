@@ -210,6 +210,7 @@ resource "aws_iam_role_policy" "task_execution_role_policy" {
 }
 EOF
 }
+
 resource "aws_iam_role_policy" "ecs_task_role_policy" {
   name   = "sinkholed-${var.environment}-task-role-policy"
   role   = module.service.task_role_arn
