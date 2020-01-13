@@ -81,7 +81,7 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
     cfg.SetEnvPrefix("SINKHOLED_ES")
     cfg.AutomaticEnv()
 
-    // Workaround for viper not reading kets from env unless they are manually Get'd
+    // Workaround for viper not reading keys from env unless they are manually Get'd
     cfg.Set("Addresses", cfg.Get("Addresses"))
     cfg.Set("Aws", cfg.Get("Aws"))
 
