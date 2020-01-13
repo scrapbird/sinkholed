@@ -33,7 +33,7 @@ type smtpdPlugin struct {
 }
 
 func (p *smtpdPlugin) smtpdWorker() {
-    cfg := &guerrilla.AppConfig{LogFile: p.cfg.LogPath, AllowedHosts: []string{"."}}
+    cfg := &guerrilla.AppConfig{LogFile: p.cfg.LogPath, LogLevel: p.cfg.LogLevel, AllowedHosts: []string{"."}}
     sc := guerrilla.ServerConfig{
         ListenInterface: p.cfg.ListenAddress,
         IsEnabled: true,
