@@ -52,13 +52,13 @@ variable "vpc_id" {
   description = "ID of the VPC to use"
 }
 
-variable "iam_instance_profile" {
-  type        = string
-  description = "IAM instance profile ID to use for the launch configuration"
-}
-
 variable "ec2_instance_key" {
   type        = string
   description = "The ssh key to use for the ec2 instances"
+}
+
+variable "cloudwatch_prefix" {
+  type        = string
+  description = "The prefix used for the CloudWatch LogGroup"
 }
 

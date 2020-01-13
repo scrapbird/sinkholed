@@ -53,16 +53,6 @@ variable "container_secrets_configuration" {
   }))
 }
 
-variable "execution_role_arn" {
-  type        = string
-  description = "ARN for the ecs execution role"
-}
-
-variable "task_role_arn" {
-  type        = string
-  description = "ARN for the ecs task role"
-}
-
 variable "desired_count" {
   description = "Desired count of tasks to run"
 }
@@ -106,19 +96,9 @@ variable "essential" {
   default     = true
 }
 
-variable "container_log_group" {
+variable "container_log_group_name" {
   type        = string
   description = "Log group to use for the service container logs"
-}
-
-variable "healthcheck_port" {
-  description = "protocol:port health check specification. Example: udp:1000"
-}
-
-variable "cidr_blocks" {
-  type        = list
-  description = "The CIDR blocks to allow access to service ports."
-  default     = ["0.0.0.0/0"]
 }
 
 variable "subnets" {
@@ -134,5 +114,15 @@ variable "vpc_id" {
 variable "allow_security_groups" {
   type        = list
   description = "A list of security groups to allow access to the mapped ports"
+}
+
+variable "ecr_repository" {
+  type        = string
+  description = "The ARN of the ecr repository to use for deployments"
+}
+
+variable "cloudwatch_prefix" {
+  type        = string
+  description = "The prefix used for the CloudWatch LogGroup"
 }
 

@@ -98,38 +98,21 @@ module "elasticsearch" {
   elasticsearch_version = "6.7"
 }
 
-module "iam_policies" {
-  source = "./modules/iam"
-
-  project                  = "sinkholed"
-  environment              = var.environment
-  cloudwatch_prefix        = "sinkholed-${var.environment}"
-  jwt_secret               = module.jwt_secret.arn
-  ecr_repository           = data.aws_ecr_repository.service.arn
-  elasticsearch_domain_arn = module.elasticsearch.arn
-
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
-  }
-}
-
 module "autoscalinggroup" {
   source = "./modules/autoscalinggroup"
 
-  project              = "sinkholed"
-  environment          = var.environment
-  securitygroup_id     = aws_security_group.clustersg.id
-  min_size             = 1
-  max_size             = 1
-  ami                  = data.aws_ami.latest_ecs.id
-  instance_type        = "t2.micro"
-  subnets              = module.network.public_subnets
-  vpc_id               = module.network.vpc_id
-  user_data            = data.template_file.user_data.rendered
-  iam_instance_profile = module.iam_policies.ecs_instance_profile_id
-  ec2_instance_key     = "sinkholed-${var.environment}"
+  project           = "sinkholed"
+  environment       = var.environment
+  securitygroup_id  = aws_security_group.clustersg.id
+  min_size          = 1
+  max_size          = 1
+  ami               = data.aws_ami.latest_ecs.id
+  instance_type     = "t2.micro"
+  subnets           = module.network.public_subnets
+  vpc_id            = module.network.vpc_id
+  user_data         = data.template_file.user_data.rendered
+  ec2_instance_key  = "sinkholed-${var.environment}"
+  cloudwatch_prefix = "sinkholed-${var.environment}"
 
   tags = {
     managedBy   = "terraform"
@@ -155,13 +138,11 @@ module "service" {
   cpu                                = 512
   memory                             = 128
   image_url                          = format("%s:%s", data.aws_ecr_repository.service.repository_url, var.image_tag)
-  container_log_group                = "/sinkholed-${var.environment}/service"
-  execution_role_arn                 = module.iam_policies.ecs_execution_role_arn
-  task_role_arn                      = module.iam_policies.ecs_task_role_arn
+  ecr_repository                     = data.aws_ecr_repository.service.arn
+  container_log_group_name           = "/sinkholed-${var.environment}/service"
   subnets                            = module.network.public_subnets
   allow_security_groups              = [aws_security_group.clustersg.id]
-
-  healthcheck_port = "tcp:1337"
+  cloudwatch_prefix                  = "sinkholed-${var.environment}"
 
   container_port_mappings = [
     # {
@@ -209,5 +190,43 @@ module "service" {
     environment = var.environment
     project     = "sinkholed"
   }
+}
+
+resource "aws_iam_role_policy" "task_execution_role_policy" {
+  name   = "sinkholed-${var.environment}-task-execution-role-policy-allow-secrets"
+  role   = module.service.task_execution_role_arn
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "secretsmanager:GetSecretValue"
+          ],
+          "Resource": "${module.jwt_secret.arn}"
+      }
+  ]
+}
+EOF
+}
+resource "aws_iam_role_policy" "ecs_task_role_policy" {
+  name   = "sinkholed-${var.environment}-task-role-policy"
+  role   = module.service.task_role_arn
+  policy = <<EOF
+{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "es:*"
+      ],
+      "Resource": [
+        "${module.elasticsearch.arn}/*"
+      ]
+    }
+  ]
+}
+EOF
 }
 

@@ -1,7 +1,28 @@
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name               = "${var.project}-${var.environment}-task-execution-role"
+  assume_role_policy = file("${path.module}/policies/ecs-task-role-assume-policy.json")
+}
+
+resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
+  name = "${var.project}-${var.environment}-task-execution-role-policy"
+  policy = templatefile("${path.module}/policies/ecs-task-execution-role-policy.json.tpl",
+    {
+      ecr_repo_arn      = var.ecr_repository
+      cloudwatch_prefix = var.cloudwatch_prefix
+    }
+  )
+  role = aws_iam_role.ecs_task_execution_role.id
+}
+
+resource "aws_iam_role" "ecs_task_role" {
+  name               = "${var.project}-${var.environment}-task-role"
+  assume_role_policy = file("${path.module}/policies/ecs-task-role-assume-policy.json")
+}
+
 resource "aws_ecs_task_definition" "main" {
   family             = var.task_definition_family
-  execution_role_arn = var.execution_role_arn
-  task_role_arn      = var.task_role_arn
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn      = aws_iam_role.ecs_task_role.arn
   container_definitions = replace(jsonencode([
     {
       name             = var.name
@@ -20,7 +41,7 @@ resource "aws_ecs_task_definition" "main" {
 }
 
 resource "aws_cloudwatch_log_group" "service_log_group" {
-  name = var.container_log_group
+  name = var.container_log_group_name
   tags = var.tags
 }
 

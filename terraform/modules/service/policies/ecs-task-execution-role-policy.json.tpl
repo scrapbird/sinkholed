@@ -16,13 +16,6 @@
         {
             "Effect": "Allow",
             "Action": [
-                "secretsmanager:GetSecretValue"
-            ],
-            "Resource": "${jwt_secret}"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
                 "ecr:BatchCheckLayerAvailability",
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage"
