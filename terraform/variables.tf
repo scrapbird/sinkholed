@@ -9,6 +9,7 @@ variable "tags" {
 variable "environment" {
   type        = string
   description = "The environment (dev, qa, prod etc)"
+  default     = "production"
 }
 
 variable "cidr_blocks" {
@@ -20,10 +21,12 @@ variable "cidr_blocks" {
 variable "ecr_repository" {
   type        = string
   description = "The name of the ECR repository to deploy from"
+  default     = "sinkholed"
 }
 
 variable "image_tag" {
   type        = string
   description = "The tagged image to deploy"
+  default     = "latest"
 }
 

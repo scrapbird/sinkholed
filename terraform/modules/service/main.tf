@@ -52,8 +52,6 @@ resource "aws_lb" "main" {
   subnets                          = var.subnets
   enable_cross_zone_load_balancing = true
 
-  enable_deletion_protection = true
-
   tags = var.tags
 }
 
