@@ -3,11 +3,7 @@ module "network" {
 
   project     = "sinkholed"
   environment = var.environment
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
-  }
+  tags        = local.tags
 }
 
 resource "aws_security_group" "clustersg" {
@@ -51,11 +47,7 @@ resource "aws_security_group" "clustersg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
-  }
+  tags = local.tags
 }
 
 module "cluster" {
@@ -64,22 +56,28 @@ module "cluster" {
   project     = "sinkholed"
   environment = var.environment
 
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
-  }
+  tags = local.tags
 }
 
-module "jwt_secret" {
-  source = "./modules/secret"
+resource "random_password" "jwt_secret" {
+  length  = 64
+  special = false
+}
 
+resource "aws_secretsmanager_secret" "jwt_secret" {
   name_prefix = "sinkholed/${var.environment}/jwt_secret/"
 
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
+  tags = local.tags
+}
+
+resource "aws_secretsmanager_secret_version" "jwt_secret" {
+  secret_id     = aws_secretsmanager_secret.jwt_secret.id
+  secret_string = random_password.jwt_secret.result
+
+  lifecycle {
+    ignore_changes = [
+      secret_string
+    ]
   }
 }
 
@@ -96,6 +94,8 @@ module "elasticsearch" {
   volume_type           = "gp2"
   volume_size           = 30
   elasticsearch_version = "6.7"
+
+  tags = local.tags
 }
 
 module "autoscalinggroup" {
@@ -114,11 +114,7 @@ module "autoscalinggroup" {
   ec2_instance_key  = "sinkholed-${var.environment}"
   cloudwatch_prefix = "sinkholed-${var.environment}"
 
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
-  }
+  tags = local.tags
 }
 
 module "service" {
@@ -181,15 +177,11 @@ module "service" {
   container_secrets_configuration = [
     {
       name      = "SINKHOLED_JWTSECRET",
-      valueFrom = module.jwt_secret.arn
+      valueFrom = aws_secretsmanager_secret.jwt_secret.id
     }
   ]
 
-  tags = {
-    managedBy   = "terraform"
-    environment = var.environment
-    project     = "sinkholed"
-  }
+  tags = local.tags
 }
 
 resource "aws_iam_role_policy" "task_execution_role_policy" {
@@ -204,7 +196,7 @@ resource "aws_iam_role_policy" "task_execution_role_policy" {
           "Action": [
               "secretsmanager:GetSecretValue"
           ],
-          "Resource": "${module.jwt_secret.arn}"
+          "Resource": "${aws_secretsmanager_secret.jwt_secret.id}"
       }
   ]
 }
