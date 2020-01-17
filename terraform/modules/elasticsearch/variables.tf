@@ -2,7 +2,7 @@ variable "tags" {
   type        = map
   description = "Global list of tags to apply to all resources"
   default = {
-    managedBy = "terraform"
+    ManagedBy = "terraform"
   }
 }
 

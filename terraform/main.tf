@@ -1,25 +1,20 @@
 locals {
   tags = merge(var.tags, {
-    environment = var.environment
-    project     = "sinkholed"
-    managedBy   = "terraform"
+    Environment = var.environment
+    Project     = "sinkholed"
+    ManagedBy   = "terraform"
   })
 }
 
 module "network" {
   source = "./modules/network"
 
-  project     = "sinkholed"
-  environment = var.environment
+  name_prefix = "sinkholed-${var.environment}"
   tags        = local.tags
 }
 
-module "cluster" {
-  source = "./modules/cluster"
-
-  project     = "sinkholed"
-  environment = var.environment
-
+resource "aws_ecs_cluster" "cluster" {
+  name = "sinkholed-${var.environment}-cluster"
   tags = local.tags
 }
 
@@ -76,7 +71,7 @@ module "autoscalinggroup" {
   ec2_instance_key  = "sinkholed-test"
   cloudwatch_prefix = "sinkholed-${var.environment}"
 
-  ports = [{
+  port_mappings = [{
     port        = 1337
     protocol    = "tcp"
     cidr_blocks = var.cidr_blocks
@@ -88,11 +83,9 @@ module "autoscalinggroup" {
 module "service" {
   source = "./modules/service"
 
-  project                            = "sinkholed"
-  environment                        = var.environment
-  name                               = "sinkholed-${var.environment}"
+  name_prefix                        = "sinkholed-${var.environment}"
   vpc_id                             = module.network.vpc_id
-  cluster                            = module.cluster.cluster_name
+  cluster                            = aws_ecs_cluster.cluster.name
   max_count                          = 1
   min_count                          = 1
   desired_count                      = 1

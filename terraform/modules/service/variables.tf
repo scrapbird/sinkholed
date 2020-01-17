@@ -1,24 +1,14 @@
-variable "project" {
-  type        = string
-  description = "The project name"
-}
-
-variable "environment" {
-  type        = string
-  description = "The project environment (dev, qa, prod etc)"
-}
-
 variable "tags" {
   type        = map
   description = "Global list of tags to apply to all resources"
   default = {
-    managedBy = "terraform"
+    ManagedBy = "terraform"
   }
 }
 
-variable "name" {
+variable "name_prefix" {
   type        = string
-  description = "Name for the service"
+  description = "Name prefix to use for all resources created for the service"
 }
 
 variable "cluster" {

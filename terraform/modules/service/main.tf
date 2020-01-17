@@ -9,12 +9,12 @@ locals {
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "${var.project}-${var.environment}-task-execution-role"
+  name               = "${var.name_prefix}-task-execution-role"
   assume_role_policy = file("${path.module}/policies/ecs-task-role-assume-policy.json")
 }
 
 resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
-  name = "${var.project}-${var.environment}-task-execution-role-policy"
+  name = "${var.name_prefix}-task-execution-role-policy"
   policy = templatefile("${path.module}/policies/ecs-task-execution-role-policy.json.tpl",
     {
       ecr_repo_arn      = var.ecr_repository
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
 }
 
 resource "aws_iam_role" "ecs_task_role" {
-  name               = "${var.project}-${var.environment}-task-role"
+  name               = "${var.name_prefix}-task-role"
   assume_role_policy = file("${path.module}/policies/ecs-task-role-assume-policy.json")
 }
 
@@ -35,7 +35,7 @@ resource "aws_ecs_task_definition" "main" {
   task_role_arn      = aws_iam_role.ecs_task_role.arn
   container_definitions = replace(jsonencode([
     {
-      name             = var.name
+      name             = var.name_prefix
       image            = var.image_url
       cpu              = var.cpu
       memory           = var.memory
@@ -56,7 +56,7 @@ resource "aws_cloudwatch_log_group" "service_log_group" {
 }
 
 resource "aws_lb" "main" {
-  name                             = "${var.project}-${var.environment}-lb"
+  name                             = "${var.name_prefix}-lb"
   internal                         = false
   load_balancer_type               = "network"
   subnets                          = var.subnets
@@ -68,7 +68,7 @@ resource "aws_lb" "main" {
 resource "aws_lb_target_group" "main" {
   count = length(var.container_port_mappings)
 
-  name        = "${var.project}-${var.environment}-target-${count.index}"
+  name        = "${var.name_prefix}-target-${count.index}"
   port        = var.container_port_mappings[count.index].hostPort
   protocol    = upper(var.container_port_mappings[count.index].protocol)
   vpc_id      = var.vpc_id
@@ -112,7 +112,7 @@ resource "aws_security_group_rule" "service_rules" {
 }
 
 resource "aws_ecs_service" "main" {
-  name                               = var.name
+  name                               = var.name_prefix
   desired_count                      = var.desired_count
   task_definition                    = aws_ecs_task_definition.main.id
   cluster                            = var.cluster
@@ -125,7 +125,7 @@ resource "aws_ecs_service" "main" {
 
     content {
       target_group_arn = target_group.value.id
-      container_name   = var.name
+      container_name   = var.name_prefix
       container_port   = target_group.value.port
     }
   }

@@ -1,18 +1,13 @@
-variable "project" {
+variable "name_prefix" {
   type        = string
-  description = "The project name"
-}
-
-variable "environment" {
-  type        = string
-  description = "The project environment (dev, qa, prod etc)"
+  description = "String to prefix to all named resources created by the module"
 }
 
 variable "tags" {
   type        = map
   description = "Global list of tags to apply to all resources"
   default = {
-    managedBy = "terraform"
+    ManagedBy = "terraform"
   }
 }
 
