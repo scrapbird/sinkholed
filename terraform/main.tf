@@ -1,53 +1,17 @@
+locals {
+  tags = merge(var.tags, {
+    environment = var.environment
+    project     = "sinkholed"
+    managedBy   = "terraform"
+  })
+}
+
 module "network" {
   source = "./modules/network"
 
   project     = "sinkholed"
   environment = var.environment
   tags        = local.tags
-}
-
-resource "aws_security_group" "clustersg" {
-  name        = "sinkholed-${var.environment}-cluster-sg"
-  description = "Allow incoming traffic to the sinkholed-${var.environment} cluster instances."
-  vpc_id      = module.network.vpc_id
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.cidr_blocks
-  }
-  ingress {
-    from_port   = 53
-    to_port     = 53
-    protocol    = "udp"
-    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
-  }
-  ingress {
-    from_port   = 1337
-    to_port     = 1337
-    protocol    = "tcp"
-    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
-  }
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
-  }
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = concat(var.cidr_blocks, [module.network.cidr])
-  }
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = local.tags
 }
 
 module "cluster" {
@@ -101,9 +65,7 @@ module "elasticsearch" {
 module "autoscalinggroup" {
   source = "./modules/autoscalinggroup"
 
-  project           = "sinkholed"
-  environment       = var.environment
-  securitygroup_id  = aws_security_group.clustersg.id
+  name_prefix       = "sinkholed-${var.environment}"
   min_size          = 1
   max_size          = 1
   ami               = data.aws_ami.latest_ecs.id
@@ -111,8 +73,14 @@ module "autoscalinggroup" {
   subnets           = module.network.public_subnets
   vpc_id            = module.network.vpc_id
   user_data         = data.template_file.user_data.rendered
-  ec2_instance_key  = "sinkholed-${var.environment}"
+  ec2_instance_key  = "sinkholed-test"
   cloudwatch_prefix = "sinkholed-${var.environment}"
+
+  ports = [{
+    port        = 1337
+    protocol    = "tcp"
+    cidr_blocks = var.cidr_blocks
+  }]
 
   tags = local.tags
 }
@@ -137,31 +105,9 @@ module "service" {
   ecr_repository                     = data.aws_ecr_repository.service.arn
   container_log_group_name           = "/sinkholed-${var.environment}/service"
   subnets                            = module.network.public_subnets
-  allow_security_groups              = [aws_security_group.clustersg.id]
+  security_group_id                  = module.autoscalinggroup.security_group_id
   cloudwatch_prefix                  = "sinkholed-${var.environment}"
-
-  container_port_mappings = [
-    # {
-    #   containerPort = 53
-    #   hostPort      = 53
-    #   protocol      = "udp"
-    # },
-    # {
-    #   containerPort = 80
-    #   hostPort      = 80
-    #   protocol      = "tcp"
-    # },
-    # {
-    #   containerPort = 443
-    #   hostPort      = 443
-    #   protocol      = "tcp"
-    # },
-    {
-      containerPort = 1337
-      hostPort      = 1337
-      protocol      = "tcp"
-    }
-  ]
+  container_port_mappings            = var.container_port_mappings
 
   container_environment = [
     {

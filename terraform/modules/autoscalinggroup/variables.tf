@@ -1,11 +1,6 @@
-variable "project" {
+variable "name_prefix" {
   type        = string
-  description = "The project name"
-}
-
-variable "environment" {
-  type        = string
-  description = "The project environment (dev, qa, prod etc)"
+  description = "String to prefix to all named resources created by the module"
 }
 
 variable "tags" {
@@ -16,15 +11,13 @@ variable "tags" {
   }
 }
 
-variable "securitygroup_id" {
-  description = "Security group ID to use for the ASG instances"
-}
-
 variable "min_size" {
+  default     = 1
   description = "Min size of cluster autoscaling group"
 }
 
 variable "max_size" {
+  default     = 1
   description = "Max size of cluster autoscaling group"
 }
 
@@ -46,6 +39,20 @@ variable "user_data" {
 variable "subnets" {
   type        = list(string)
   description = "List of subnets to use for the autoscaling group"
+}
+
+variable "port_mappings" {
+  description = "A list of ports to allow to connect to the autoscaling group instances"
+  type = list(object({
+    port        = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+  default = [{
+    port        = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }]
 }
 
 variable "vpc_id" {

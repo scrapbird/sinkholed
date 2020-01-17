@@ -1,3 +1,13 @@
+locals {
+  container_log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      awslogs-group  = var.container_log_group_name
+      awslogs-region = data.aws_region.current.name
+    }
+  }
+}
+
 resource "aws_iam_role" "ecs_task_execution_role" {
   name               = "${var.project}-${var.environment}-task-execution-role"
   assume_role_policy = file("${path.module}/policies/ecs-task-role-assume-policy.json")
@@ -88,6 +98,17 @@ resource "aws_lb_listener" "main" {
   }
 
   depends_on = [aws_lb_target_group.main]
+}
+
+resource "aws_security_group_rule" "service_rules" {
+  count = length(var.container_port_mappings)
+
+  security_group_id = var.security_group_id
+  type              = "ingress"
+  from_port         = var.container_port_mappings[count.index].hostPort
+  to_port           = var.container_port_mappings[count.index].hostPort
+  protocol          = var.container_port_mappings[count.index].protocol
+  cidr_blocks       = data.aws_subnet.subnets.*.cidr_block
 }
 
 resource "aws_ecs_service" "main" {

@@ -30,3 +30,39 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "ssh_cidr_blocks" {
+  type        = list
+  description = "A list of CIDR blocks to allow SSH access to the cluster instances. If this is left as null no SSH access will be configured."
+  default     = null
+}
+
+variable "autoscaling_group_ports" {
+  description = "The ports to open in the autoscaling group security group"
+  type = list(object({
+    port        = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+  default = [{
+    port        = 1337
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }]
+}
+
+variable "container_port_mappings" {
+  description = "Ports to map into the running containers"
+  type = list(object({
+    containerPort = number
+    hostPort      = number
+    protocol      = string
+  }))
+
+  default = [
+    {
+      containerPort = 1337
+      hostPort      = 1337
+      protocol      = "tcp"
+    }
+  ]
+}

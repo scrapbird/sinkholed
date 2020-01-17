@@ -103,7 +103,7 @@ variable "container_log_group_name" {
 
 variable "subnets" {
   type        = list(string)
-  description = "List of subnets to use for the load balancer group"
+  description = "List of subnet IDs to use for the load balancer group"
 }
 
 variable "vpc_id" {
@@ -111,9 +111,9 @@ variable "vpc_id" {
   description = "The ID of the VPC the service will reside in"
 }
 
-variable "allow_security_groups" {
-  type        = list
-  description = "A list of security groups to allow access to the mapped ports"
+variable "security_group_id" {
+  type        = string
+  description = "The ID of the security group to add incoming traffic rules to to allow local subnet access to the service ports. This is to allow the load balancer health checks access to the service."
 }
 
 variable "ecr_repository" {
