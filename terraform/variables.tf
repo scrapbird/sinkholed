@@ -30,6 +30,7 @@ variable "image_tag" {
   default     = "latest"
 }
 
+# TODO : Implement this
 variable "ssh_cidr_blocks" {
   type        = list
   description = "A list of CIDR blocks to allow SSH access to the cluster instances. If this is left as null no SSH access will be configured."

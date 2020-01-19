@@ -5,6 +5,7 @@ resource "aws_iam_role" "main" {
 
   tags = var.tags
 }
+
 resource "aws_iam_role_policy" "instance_role_policy" {
   name = "${var.name_prefix}-instance-role-policy"
   policy = templatefile("${path.module}/policies/instance-role-policy.json.tpl",

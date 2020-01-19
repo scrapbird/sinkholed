@@ -7,7 +7,7 @@ resource "aws_vpc" "vpc" {
   instance_tenancy               = "default"
 
   tags = merge(var.tags, {
-    Name = "${var.project}-vpc"
+    Name = "${var.name_prefix}-vpc"
   })
 }
 
@@ -15,7 +15,7 @@ resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.vpc.id
 
   tags = merge(var.tags, {
-    Name = "${var.project}-gateway"
+    Name = "${var.name_prefix}-gateway"
   })
 }
 
