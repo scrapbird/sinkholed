@@ -28,6 +28,7 @@ By default sinkholed comes with the following plugins:
   * [Deploying without docker](#deploying-without-docker)
      * [Building](#building)
      * [Installing](#installing)
+  * [Deploying to AWS](#deploying-to-aws)
   * [Command line reference](#command-line-reference)
      * [sinkholed](#sinkholed-1)
      * [sinkholecli](#sinkholecli)
