@@ -1,4 +1,7 @@
 bin/
 *.so
 .env
-terraform/.terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
