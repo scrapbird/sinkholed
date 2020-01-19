@@ -12,12 +12,16 @@ LogPath: /tmp/sinkholed.log
 # Log level
 LogLevel: info
 
+# Path to directory to load plugins from
+PluginsPath: ./bin
 # Plugins to load
 Plugins:
-  "bin/elasticsearch.so":
+  "elasticsearch":
+    # This can also be provided as an env variable:
+    # SINKHOLED_ES_ADDRESSES=http://host1:9200,http://host2:9200
     Addresses:
       - http://elasticsearch:9200
-  "bin/smtpd.so":
+  "smtpd":
     ListenAddress: 0.0.0.0:1337
     # HostMetadata is used to override or add event metadata based on which host the mail came from.
     # This is good for modifying incoming smtp events metadata based on which malware is being run on the host.
@@ -32,6 +36,6 @@ Plugins:
       "172.18.0.1":
         - necurs
 
-  "bin/samplefs.so":
+  "samplefs":
     DestDir: /var/lib/sinkholed/samples
 

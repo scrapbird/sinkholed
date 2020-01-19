@@ -3,6 +3,7 @@ package main
 import (
     "time"
     "bytes"
+    "strings"
 
     log "github.com/sirupsen/logrus"
 
@@ -19,6 +20,7 @@ import (
 )
 
 type config struct {
+    Timeout int
     LogPath string
     LogLevel string
     ListenAddress string
@@ -33,10 +35,16 @@ type smtpdPlugin struct {
 }
 
 func (p *smtpdPlugin) smtpdWorker() {
-    cfg := &guerrilla.AppConfig{LogFile: p.cfg.LogPath, AllowedHosts: []string{"."}}
+    cfg := &guerrilla.AppConfig{
+        LogFile: p.cfg.LogPath,
+        LogLevel: p.cfg.LogLevel,
+        AllowedHosts: []string{"."},
+    }
+
     sc := guerrilla.ServerConfig{
         ListenInterface: p.cfg.ListenAddress,
         IsEnabled: true,
+        Timeout: p.cfg.Timeout,
     }
     cfg.Servers = append(cfg.Servers, sc)
     bcfg := backends.BackendConfig{
@@ -128,6 +136,20 @@ func (p *smtpdPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) erro
     p.downstream = downstream
 
     log.Println("Initializing smtpd plugin")
+
+    // Enable env variable overrides
+    cfg.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+    cfg.SetEnvPrefix("SINKHOLED_ES")
+    cfg.AutomaticEnv()
+
+    // Set default timeout
+    cfg.SetDefault("Timeout", 30)
+
+    // Workaround for viper not reading keys from env unless they are manually Get'd
+    cfg.Set("Timeout", cfg.Get("Timeout"))
+    cfg.Set("ListenAddress", cfg.Get("ListenAddress"))
+    cfg.Set("HostMetadata", cfg.Get("HostMetadata"))
+    cfg.Set("HostTags", cfg.Get("HostTags"))
 
     // Parse the config
     var c config

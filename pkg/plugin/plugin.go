@@ -24,10 +24,10 @@
 // single plugin can act as an upstream, downstream and milddleware plugin all at once.
 //
 // To load a plugin, define a configuration object in the "Plugins" map in the sinkholed
-// config file, using the path to the compiled plugin as the key. Example:
+// config file, using the plugin file name without the extension plugin as the key. Example:
 //
 //  Plugins:
-//    "/path/to/plugin.so":
+//    "pluginName":
 //      ConfigVariable: config value
 //
 // The configuration object (stored in the main sinkholed config file in the "Plugins" map)

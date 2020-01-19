@@ -5,6 +5,9 @@ import (
     "sync"
     "strings"
     "encoding/json"
+    "net/http"
+    "net"
+    "crypto/tls"
 
     log "github.com/sirupsen/logrus"
 
@@ -57,6 +60,7 @@ type esEvent struct {
 
 type config struct {
     Addresses []string
+    Aws bool
 }
 
 type esPlugin struct {
@@ -72,6 +76,15 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
     log.Println("Initializing elasticsearch plugin")
     p.events = make(chan *core.Event)
 
+    // Enable env variable overrides
+    cfg.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+    cfg.SetEnvPrefix("SINKHOLED_ES")
+    cfg.AutomaticEnv()
+
+    // Workaround for viper not reading keys from env unless they are manually Get'd
+    cfg.Set("Addresses", cfg.Get("Addresses"))
+    cfg.Set("Aws", cfg.Get("Aws"))
+
     // Parse the config
     var c config
     cfg.Unmarshal(&c)
@@ -79,6 +92,22 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
 
     esConfig := elasticsearch.Config{
         Addresses: p.cfg.Addresses,
+    }
+
+    // Support AWS hosted elasticsearch
+    if p.cfg.Aws {
+        log.Info("AWS hosted elasticsearch detected, accepting self signed certs")
+        esConfig.Transport = &http.Transport{
+            MaxIdleConnsPerHost:   10,
+            ResponseHeaderTimeout: time.Second,
+            DialContext:           (&net.Dialer{
+                Timeout: 30 * time.Second,
+                KeepAlive: 30 * time.Second,
+            }).DialContext,
+            TLSClientConfig: &tls.Config{
+                InsecureSkipVerify: true,
+            },
+        }
     }
 
     p.connectMux.Lock()
