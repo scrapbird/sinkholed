@@ -172,6 +172,13 @@ Plugins:
 ```
 
 
+## Deploying to AWS
+
+Terraform templates are available to bring up a full production ready environment to run sinkholed. The templates will create an ECS service and cluster to run sinkholed, elasticsearch cluster and configure a load balancer all inside a dedicated VPC. By default this setup takes advantage of the free tiers of everything created and should cost nothing to run depending on data storage use.
+
+More information can be found in the [terraform readme](terraform/README.md).
+
+
 ## Command line reference
 
 ### sinkholed 
