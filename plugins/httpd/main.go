@@ -45,7 +45,6 @@ func (p *httpdPlugin) wildcardResponse(w http.ResponseWriter, req *http.Request)
     if err != nil {
         log.Errorln("Failed to get raw request", err)
     }
-    log.Println("raw:", string(rawRequest))
 
     body, err := ioutil.ReadAll(req.Body)
     if err != nil {
