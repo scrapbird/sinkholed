@@ -3,8 +3,10 @@ package main
 import (
     "fmt"
     "strings"
+    "io/ioutil"
     "net/http"
     "net/http/httputil"
+    "time"
 
     log "github.com/sirupsen/logrus"
 
@@ -27,7 +29,7 @@ type httpdPlugin struct {
     downstream chan<- *core.Event
 }
 
-func wildcardResponse(w http.ResponseWriter, req *http.Request) {
+func (p *httpdPlugin) wildcardResponse(w http.ResponseWriter, req *http.Request) {
     // Note that there are some gotchas here if you require an exact request:
     // DumpRequest returns the given request in its HTTP/1.x wire representation. It should 
     // only be used by servers to debug client requests. The returned representation is an 
@@ -39,14 +41,41 @@ func wildcardResponse(w http.ResponseWriter, req *http.Request) {
     // If body is true, DumpRequest also returns the body. To do so, it consumes req.Body 
     // and then replaces it with a new io.ReadCloser that yields the same bytes. If 
     // DumpRequest returns an error, the state of req is undefined.
-    rawRequest, _ := httputil.DumpRequest(req, true)
-    log.Println(string(rawRequest))
+    rawRequest, err := httputil.DumpRequest(req, true)
+    if err != nil {
+        log.Errorln("Failed to get raw request", err)
+    }
+    log.Println("raw:", string(rawRequest))
+
+    body, err := ioutil.ReadAll(req.Body)
+    if err != nil {
+        log.Errorln("Failed to read request body", err)
+    }
+
+    metadata := map[string]interface{}{
+        "SourceIp": req.RemoteAddr,
+        "Raw": string(rawRequest),
+        "Headers": req.Header,
+        "Host": req.Host,
+        "Cookies": req.Cookies(),
+        "Body": string(body),
+        "Method": req.Method,
+    }
+
+    event := &core.Event{
+        Type: "request",
+        Source: "http",
+        Timestamp: time.Now(),
+        Metadata: metadata,
+    }
+
+    p.downstream <- event
 
     fmt.Fprintln(w, "Ok")
 }
 
 func (p *httpdPlugin) httpdWorker() {
-    http.HandleFunc("/", wildcardResponse)
+    http.HandleFunc("/", p.wildcardResponse)
     http.ListenAndServe(p.cfg.ListenAddress, nil)
 }
 
