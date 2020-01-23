@@ -21,6 +21,9 @@ type config struct {
     LogPath string
     LogLevel string
     ListenAddress string
+    TLSListenAddress string
+    TLSCertFile string
+    TLSKeyFile string
 }
 
 type httpdPlugin struct {
@@ -78,6 +81,21 @@ func (p *httpdPlugin) httpdWorker() {
     http.ListenAndServe(p.cfg.ListenAddress, nil)
 }
 
+func (p *httpdPlugin) httpsdWorker() {
+    http.HandleFunc("/", p.wildcardResponse)
+
+    if p.cfg.TLSCertFile == "" {
+        log.Errorln("Not listening on HTTPS. TLSCertFile config missing. (Env var: SINKHOLED_HTTPD_TLSCERTFILE)")
+        return
+    }
+    if p.cfg.TLSKeyFile == "" {
+        log.Errorln("Not listening on HTTPS. TLSKeyFile config missing. (Env var: SINKHOLED_HTTPD_TLSKEYFILE)")
+        return
+    }
+
+    http.ListenAndServeTLS(p.cfg.TLSListenAddress, p.cfg.TLSCertFile, p.cfg.TLSKeyFile, nil)
+}
+
 func (p *httpdPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
     // Store properties
     p.downstream = downstream
@@ -95,6 +113,9 @@ func (p *httpdPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) erro
     // Workaround for viper not reading keys from env unless they are manually Get'd
     cfg.Set("Timeout", cfg.Get("Timeout"))
     cfg.Set("ListenAddress", cfg.Get("ListenAddress"))
+    cfg.Set("TLSListenAddress", cfg.Get("TLSListenAddress"))
+    cfg.Set("TLSCertFile", cfg.Get("TLSCertFile"))
+    cfg.Set("TLSKeyFile", cfg.Get("TLSKeyFile"))
 
     // Parse the config
     var c config
@@ -103,6 +124,9 @@ func (p *httpdPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) erro
 
     // Start the server
     go p.httpdWorker()
+    if p.cfg.TLSListenAddress != "" {
+        go p.httpsdWorker()
+    }
 
     return nil
 }
