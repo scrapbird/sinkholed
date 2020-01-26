@@ -37,6 +37,11 @@ variable "ssh_cidr_blocks" {
   default     = null
 }
 
+variable "ec2_instance_key" {
+  type        = string
+  description = "The SSH key to use to provide access to the autoscaling group instances"
+}
+
 variable "autoscaling_group_ports" {
   description = "The ports to open in the autoscaling group security group"
   type = list(object({

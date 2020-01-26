@@ -68,14 +68,10 @@ module "autoscalinggroup" {
   subnets           = module.network.public_subnets
   vpc_id            = module.network.vpc_id
   user_data         = data.template_file.user_data.rendered
-  ec2_instance_key  = "sinkholed-test"
+  ec2_instance_key  = var.ec2_instance_key
   cloudwatch_prefix = "sinkholed-${var.environment}"
 
-  port_mappings = [{
-    port        = 1337
-    protocol    = "tcp"
-    cidr_blocks = var.cidr_blocks
-  }]
+  port_mappings = var.autoscaling_group_ports
 
   tags = local.tags
 }
