@@ -66,6 +66,14 @@ func (p *httpdPlugin) wildcardResponse(w http.ResponseWriter, req *http.Request)
         "Method": req.Method,
     }
 
+    if req.TLS != nil {
+        metadata["TLS"] = map[string]interface{}{
+            "Version": req.TLS.Version,
+            "CipherSuite": req.TLS.CipherSuite,
+            "NegotiatedProtocol": req.TLS.NegotiatedProtocol,
+        }
+    }
+
     event := &core.Event{
         Type: "request",
         Source: "http",
