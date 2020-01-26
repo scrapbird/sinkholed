@@ -33,6 +33,8 @@ type httpdPlugin struct {
 }
 
 func (p *httpdPlugin) wildcardResponse(w http.ResponseWriter, req *http.Request) {
+    log.Infoln(req.RequestURI)
+
     // Note that there are some gotchas here if you require an exact request:
     // DumpRequest returns the given request in its HTTP/1.x wire representation. It should 
     // only be used by servers to debug client requests. The returned representation is an 
@@ -77,12 +79,12 @@ func (p *httpdPlugin) wildcardResponse(w http.ResponseWriter, req *http.Request)
 }
 
 func (p *httpdPlugin) httpdWorker() {
-    http.HandleFunc("/", p.wildcardResponse)
-    http.ListenAndServe(p.cfg.ListenAddress, nil)
+    log.Infoln("Starting HTTP listener on", p.cfg.ListenAddress)
+    log.Fatal(http.ListenAndServe(p.cfg.ListenAddress, nil))
 }
 
 func (p *httpdPlugin) httpsdWorker() {
-    http.HandleFunc("/", p.wildcardResponse)
+    log.Infoln("Starting HTTPS listener on", p.cfg.TLSListenAddress)
 
     if p.cfg.TLSCertFile == "" {
         log.Errorln("Not listening on HTTPS. TLSCertFile config missing. (Env var: SINKHOLED_HTTPD_TLSCERTFILE)")
@@ -93,7 +95,7 @@ func (p *httpdPlugin) httpsdWorker() {
         return
     }
 
-    http.ListenAndServeTLS(p.cfg.TLSListenAddress, p.cfg.TLSCertFile, p.cfg.TLSKeyFile, nil)
+    log.Fatal(http.ListenAndServeTLS(p.cfg.TLSListenAddress, p.cfg.TLSCertFile, p.cfg.TLSKeyFile, nil))
 }
 
 func (p *httpdPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
@@ -123,6 +125,7 @@ func (p *httpdPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) erro
     p.cfg = &c
 
     // Start the server
+    http.HandleFunc("/", p.wildcardResponse)
     go p.httpdWorker()
     if p.cfg.TLSListenAddress != "" {
         go p.httpsdWorker()
