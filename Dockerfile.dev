@@ -11,5 +11,7 @@ WORKDIR /opt/sinkholed
 RUN mkdir -p /var/lib/sinkholed/samples
 VOLUME /var/lib/sinkholed/samples
 
+VOLUME /etc/sinkholed/certs
+
 ENTRYPOINT ./build.sh && ./entrypoint.sh /opt/sinkholed/bin/sinkholed /tmp/sinkholed.log
 

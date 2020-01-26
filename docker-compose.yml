@@ -55,6 +55,7 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:1337:1337"
+      - "127.0.0.1:1338:1338"
     volumes:
       - ./:/opt/sinkholed
       - ./config/sinkholed.yml.dev:/etc/sinkholed/sinkholed.yml

@@ -28,6 +28,8 @@ RUN addgroup -S sinkholed \
 RUN mkdir -p /var/lib/sinkholed/samples
 VOLUME /var/lib/sinkholed/samples
 
+VOLUME /etc/sinkholed/certs
+
 RUN mkdir -p /usr/local/lib/sinkholed
 COPY --from=build /opt/sinkholed/bin/*.so /usr/local/lib/sinkholed/
 
