@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "main" {
       cpu              = var.cpu
       memory           = var.memory
       essential        = var.essential
-      portMappings     = var.container_port_mappings
+      portMappings     = data.null_data_source.task_container_port_mappings.*.outputs
       logConfiguration = local.container_log_configuration
       secrets          = var.container_secrets_configuration
       environment      = var.container_environment
@@ -65,21 +65,35 @@ resource "aws_lb" "main" {
   tags = var.tags
 }
 
+resource "random_id" "target_group_name" {
+  count       = length(var.container_port_mappings)
+  prefix      = "${var.name_prefix}-${count.index}-"
+  byte_length = 2
+
+  keepers = {
+    name = jsonencode(var.container_port_mappings)
+  }
+}
+
 resource "aws_lb_target_group" "main" {
   count = length(var.container_port_mappings)
 
-  name        = "${var.name_prefix}-target-${count.index}"
-  port        = var.container_port_mappings[count.index].hostPort
+  name        = element(random_id.target_group_name.*.hex, count.index)
+  port        = var.container_port_mappings[count.index].containerPort
   protocol    = upper(var.container_port_mappings[count.index].protocol)
   vpc_id      = var.vpc_id
   target_type = "instance"
 
   health_check {
     interval            = 10
-    port                = var.container_port_mappings[count.index].hostPort
+    port                = var.container_port_mappings[count.index].containerPort
     protocol            = upper(var.container_port_mappings[count.index].protocol)
     healthy_threshold   = 2
     unhealthy_threshold = 2
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   tags = var.tags
@@ -89,7 +103,7 @@ resource "aws_lb_listener" "main" {
   count = length(var.container_port_mappings)
 
   load_balancer_arn = aws_lb.main.arn
-  port              = var.container_port_mappings[count.index].hostPort
+  port              = var.container_port_mappings[count.index].containerPort
   protocol          = upper(var.container_port_mappings[count.index].protocol)
 
   default_action {
@@ -105,8 +119,8 @@ resource "aws_security_group_rule" "service_rules" {
 
   security_group_id = var.security_group_id
   type              = "ingress"
-  from_port         = var.container_port_mappings[count.index].hostPort
-  to_port           = var.container_port_mappings[count.index].hostPort
+  from_port         = var.container_port_mappings[count.index].containerPort
+  to_port           = var.container_port_mappings[count.index].containerPort
   protocol          = var.container_port_mappings[count.index].protocol
   cidr_blocks       = data.aws_subnet.subnets.*.cidr_block
 }

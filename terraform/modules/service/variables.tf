@@ -23,7 +23,6 @@ variable "task_definition_family" {
 
 variable "container_port_mappings" {
   type = list(object({
-    hostPort      = number
     containerPort = number
     protocol      = string
   }))
