@@ -9,10 +9,10 @@ require (
 	github.com/go-chi/jwtauth v3.3.0+incompatible
 	github.com/go-chi/render v1.0.1
 	github.com/jhillyerd/enmime v0.6.0
+	github.com/miekg/dns v1.1.27
 	github.com/scrapbird/go-guerrilla v0.0.0-20190916105458-9e887ea1d41e
 	github.com/sirupsen/logrus v1.4.1
-	github.com/spf13/viper v1.3.2
-	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
+	github.com/spf13/viper v1.6.2
 )
 
 go 1.13
