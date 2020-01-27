@@ -26,7 +26,7 @@ Plugins:
   "dns":
     ListenAddress: 0.0.0.0:1339
     Records:
-      - Domain: pentest3r.com.
+      - Domain: example.com.
         Address: 127.0.0.1
   "smtpd":
     ListenAddress: 0.0.0.0:1337
