@@ -42,6 +42,7 @@ func (p *dnsPlugin) parseQuery(m *dns.Msg) {
         case dns.TypeA:
             log.Infoln("Answering DNS query for", q.Name)
             ip := p.records[q.Name]
+
             if ip != "" {
                 rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
                 if err == nil {
@@ -57,7 +58,18 @@ func (p *dnsPlugin) handleDnsRequest(w dns.ResponseWriter, r *dns.Msg) {
     m.SetReply(r)
     m.Compress = false
 
-    log.Infoln("HERE")
+    metadata := map[string]interface{}{
+        "Raw": r.String(),
+    }
+
+    event := &core.Event{
+        Type: "request",
+        Source: "dns",
+        Timestamp: time.Now(),
+        Metadata: metadata,
+    }
+
+    p.downstream <- event
 
     switch r.Opcode {
     case dns.OpcodeQuery:
