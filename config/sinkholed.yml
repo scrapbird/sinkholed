@@ -19,6 +19,8 @@ Plugins:
   "elasticsearch":
     Addresses:
       - http://elasticsearch:9200
+  "httpd":
+    ListenAddress: 0.0.0.0:1338
   "smtpd":
     ListenAddress: 0.0.0.0:1337
     # HostMetadata is used to override or add event metadata based on which host the mail came from.

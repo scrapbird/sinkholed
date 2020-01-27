@@ -60,14 +60,12 @@ variable "container_port_mappings" {
   description = "Ports to map into the running containers"
   type = list(object({
     containerPort = number
-    hostPort      = number
     protocol      = string
   }))
 
   default = [
     {
       containerPort = 1337
-      hostPort      = 1337
       protocol      = "tcp"
     }
   ]
