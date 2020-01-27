@@ -52,7 +52,7 @@ func genjwt(configPath string, expiryDays int) int {
     }
 
     if cfg.JwtSecret == "" {
-        fmt.Println("Please set SINKHOLED_JWT_SECRET in your environment")
+        fmt.Println("Please set SINKHOLED_JWTSECRET in your environment")
         return 1
     }
 

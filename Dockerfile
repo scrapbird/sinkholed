@@ -21,6 +21,8 @@ RUN ./build.sh
 
 FROM alpine
 
+RUN apk add --update --no-cache libcap
+
 # Add sinkholed user and group
 RUN addgroup -S sinkholed \
     && adduser -S sinkholed -G sinkholed
@@ -37,6 +39,8 @@ COPY --from=build /opt/sinkholed/bin/sinkholed /usr/local/bin/sinkholed
 
 COPY ./config/sinkholed.yml /etc/sinkholed/sinkholed.yml
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/sinkholed
 
 # Create log dir and set permissions
 RUN mkdir /var/log/sinkholed \

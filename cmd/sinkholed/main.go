@@ -54,7 +54,7 @@ func main() {
     }
 
     if cfg.JwtSecret == "" {
-        log.Fatalln("Please set SINKHOLED_JWT_SECRET in your environment")
+        log.Fatalln("Please set SINKHOLED_JWTSECRET in your environment")
     }
 
     // Initialize logger
