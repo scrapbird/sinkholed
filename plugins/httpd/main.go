@@ -64,6 +64,9 @@ func (p *httpdPlugin) wildcardResponse(w http.ResponseWriter, req *http.Request)
         "Cookies": req.Cookies(),
         "Body": string(body),
         "Method": req.Method,
+        "URL": req.URL,
+        "UserAgent": req.UserAgent(),
+        "Protocol": req.Proto,
     }
 
     if req.TLS != nil {
