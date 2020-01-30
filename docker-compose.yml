@@ -53,9 +53,10 @@ services:
       context: .
       dockerfile: ./Dockerfile.dev
     ports:
-      - "127.0.0.1:8080:8080"
-      - "127.0.0.1:1337:1337"
-      - "127.0.0.1:1338:1338"
+      - "127.0.0.1:8080:8080" # API
+      - "127.0.0.1:1337:1337" # SMTP
+      - "127.0.0.1:1338:1338" # HTTP
+      - "127.0.0.1:1339:1339/udp" # DNS
     volumes:
       - ./:/opt/sinkholed
       - ./config/sinkholed.yml.dev:/etc/sinkholed/sinkholed.yml
