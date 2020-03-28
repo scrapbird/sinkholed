@@ -23,6 +23,9 @@ Plugins:
       - http://elasticsearch:9200
   "httpd":
     ListenAddress: 0.0.0.0:1338
+  "downstream":
+    DestAddress: http://127.0.0.1:1336
+    Jwt: "1"
   "dns":
     ListenAddress: 0.0.0.0:1339
     Records:
