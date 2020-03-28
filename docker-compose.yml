@@ -18,8 +18,8 @@ services:
     volumes:
       - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
-      - "127.0.0.1:9200:9200"
-      - "127.0.0.1:9300:9300"
+      - "0.0.0.0:9200:9200"
+      - "0.0.0.0:9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx512m -Xms512m"
     volumes:
@@ -37,7 +37,7 @@ services:
     volumes:
       - ./config/:/usr/share/kibana/config:ro
     ports:
-      - "127.0.0.1:5601:5601"
+      - "0.0.0.0:5601:5601"
     networks:
       - sinkholed
     healthcheck:
@@ -59,7 +59,7 @@ services:
       - "127.0.0.1:1339:1339/udp" # DNS
     volumes:
       - ./:/opt/sinkholed
-      - ./config/sinkholed.yml.dev:/etc/sinkholed/sinkholed.yml
+      - ./config/sinkholed.dev.yml:/etc/sinkholed/sinkholed.yml
       - gomods:/root/go/pkg/mod
       - samples:/var/lib/sinkholed/samples
     env_file: .env
