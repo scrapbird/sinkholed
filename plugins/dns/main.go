@@ -122,11 +122,13 @@ func (p *dnsPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error 
     }
     log.Infoln("Starting DNS listener on", p.cfg.ListenAddress)
 
-    err := p.server.ListenAndServe()
-    defer p.server.Shutdown()
-    if err != nil {
-        log.Fatalf("Failed to start DNS server: %s\n ", err.Error())
-    }
+    go func() {
+        err := p.server.ListenAndServe()
+        defer p.server.Shutdown()
+        if err != nil {
+            log.Fatalf("Failed to start DNS server: %s\n ", err.Error())
+        }
+    }()
 
     return nil
 }
