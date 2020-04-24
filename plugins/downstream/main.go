@@ -5,7 +5,6 @@ package main
 import (
     "time"
     "bytes"
-    "io/ioutil"
     "net/http"
     "strings"
     "encoding/json"
