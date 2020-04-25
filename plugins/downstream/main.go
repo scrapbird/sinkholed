@@ -60,7 +60,7 @@ func (p *downstreamSinkholed) Inbox(event *core.Event) error {
     // Pipe event to downstream sinkholed instance
     j, err := json.Marshal(event)
 
-    req, err := http.NewRequest("POST", p.cfg.DestAddress + "/event", bytes.NewBuffer(j))
+    req, err := http.NewRequest("POST", p.cfg.DestAddress + "/api/v1/event", bytes.NewBuffer(j))
     req.Header.Add("Authorization", "Bearer " + p.cfg.Jwt)
 
     client := &http.Client{
