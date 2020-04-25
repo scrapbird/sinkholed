@@ -32,6 +32,17 @@ func Routes(cfg *config.Config, pluginManager *plugin.PluginManager, logger *log
         middleware.Recoverer,
     )
 
+    // Healthcheck route
+    type APIResponse struct {
+        Message string `json:"message"`
+    }
+    router.Get("/", func (w http.ResponseWriter, r *http.Request) {
+        resp := APIResponse{
+            Message: "ok",
+        }
+        render.JSON(w, r, resp)
+    })
+
     router.Route("/api", func(r chi.Router) {
         r.Mount("/v1", v1.Routes(cfg, pluginManager))
     })

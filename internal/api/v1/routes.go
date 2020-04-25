@@ -27,7 +27,7 @@ func Routes(cfg *config.Config, pluginManager *plugin.PluginManager) *chi.Mux {
 
     // Public routes
     router.Group(func (r chi.Router) {
-        r.Get("/", Healthcheck)
+        r.Get("/healthcheck", Healthcheck)
     })
 
     // Private routes
