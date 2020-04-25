@@ -27,14 +27,13 @@ func Routes(cfg *config.Config, pluginManager *plugin.PluginManager) *chi.Mux {
 
     // Public routes
     router.Group(func (r chi.Router) {
-        r.Get("/healthcheck", Healthcheck)
+        r.Get("/", Healthcheck)
     })
 
     // Private routes
     router.Group(func (r chi.Router) {
         r.Use(jwtauth.Verifier(cfg.JwtAuth))
         r.Use(jwtauth.Authenticator)
-        r.Get("/hello", Hello)
         r.Post("/event", PostEvent(cfg, pluginManager))
     })
 
@@ -77,12 +76,5 @@ func PostEvent(cfg *config.Config, pluginManager *plugin.PluginManager) http.Han
         }
         render.JSON(w, r, resp)
     }
-}
-
-func Hello(w http.ResponseWriter, r *http.Request) {
-    resp := APIResponse{
-        Message: "hello",
-    }
-    render.JSON(w, r, resp)
 }
 
