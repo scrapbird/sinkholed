@@ -9,7 +9,7 @@ sinkholed plugins are compiled [go plugins](https://golang.org/pkg/plugin/) comp
 
 Plugins get their configuration from the main sinkholed [config file](https://github.com/scrapbird/sinkholed#config-file).
 
-Each plugin takes it's own configuration map, defined in the [config/sinkholed.yml](config/sinkholed.yml) file. The `Plugins` map in the config file contains a map of these individual plugin config definitions, mapped using the name of the plugin file without the extension (`.so`) as the key. This is also how sinkholed knows which plugins to load, you can unload plugins by deleting or commenting out their config maps and restarting the server. Similarly, to tell sinkholed to load a plugin simply add a definition to the config file using the name of the plugin to load as the key.
+Each plugin takes it's own configuration map, defined in the [../config/sinkholed.yml](config/sinkholed.yml) file. The `Plugins` map in the config file contains a map of these individual plugin config definitions, mapped using the name of the plugin file without the extension (`.so`) as the key. This is also how sinkholed knows which plugins to load, you can unload plugins by deleting or commenting out their config maps and restarting the server. Similarly, to tell sinkholed to load a plugin simply add a definition to the config file using the name of the plugin to load as the key.
 
 The configuration is represented by a [viper](https://github.com/spf13/viper) instance that is passed to the plugin's `Init` method. Plugins should [unmarshal](https://godoc.org/github.com/spf13/viper#Unmarshal) their configs into a struct.
 
