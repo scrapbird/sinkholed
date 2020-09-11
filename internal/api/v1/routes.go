@@ -4,7 +4,6 @@ import (
     "fmt"
     "net/http"
     "encoding/json"
-    "encoding/base64"
     "crypto/sha256"
 
     "github.com/go-chi/chi"
@@ -63,8 +62,7 @@ func PostEvent(cfg *config.Config, pluginManager *plugin.PluginManager) http.Han
         }
 
         for i := range event.Samples {
-            // Decode sample and calculate hash
-            _, err = base64.StdEncoding.Decode(event.Samples[i].Data, event.Samples[i].Data)
+            // Calculate hash
             sha256sum := sha256.Sum256(event.Samples[i].Data)
             event.Samples[i].Sha256 = fmt.Sprintf("%x", sha256sum)
         }
