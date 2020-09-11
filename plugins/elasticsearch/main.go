@@ -60,6 +60,8 @@ type esEvent struct {
 
 type config struct {
     Addresses []string
+    Username string
+    Password string
     Aws bool
 }
 
@@ -83,6 +85,8 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
 
     // Workaround for viper not reading keys from env unless they are manually Get'd
     cfg.Set("Addresses", cfg.Get("Addresses"))
+    cfg.Set("Password", cfg.Get("Password"))
+    cfg.Set("Username", cfg.Get("Username"))
     cfg.Set("Aws", cfg.Get("Aws"))
 
     // Parse the config
@@ -92,6 +96,8 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
 
     esConfig := elasticsearch.Config{
         Addresses: p.cfg.Addresses,
+        Password: p.cfg.Password,
+        Username: p.cfg.Username,
     }
 
     // Support AWS hosted elasticsearch
