@@ -46,6 +46,7 @@ const indexMapping = `{
 
 type esSample struct {
     Sha256 string `json:"sha256"`
+    FileName string `json:"filename"`
 }
 
 type esMetadata interface{}
