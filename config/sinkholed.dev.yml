@@ -1,7 +1,7 @@
 ---
 ## sinkholed default config
 #
-# Please provide the JWT secret key as an environment variable named SINKHOLED_JWT_SECRET
+# Please provide the JWT secret key as an environment variable named SINKHOLED_JWTSECRET
 
 # Address to bind API to
 # note: this is inside the docker container, we aren't binding to all adapters on host

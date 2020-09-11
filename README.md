@@ -54,7 +54,7 @@ Next, simply run `docker-compose up` to bring elasticsearch, kibana and sinkhole
 
 If you have go installed on your machine you can build sinkholecli by running `./build.sh sinkholecli`. This will run the build script and tell it to only build `sinkholecli` rather than the whole package.
 
-Next run `echo "SINKHOLED_JWT_SECRET=$(./bin/sinkholecli gensecret)" > .env` to generate a JWT secret and populate your `.env` file with it. This `.env` file is used by `docker-compose` to set the environment variables for sinkholed.
+Next run `echo "SINKHOLED_JWTSECRET=$(./bin/sinkholecli gensecret)" > .env` to generate a JWT secret and populate your `.env` file with it. This `.env` file is used by `docker-compose` to set the environment variables for sinkholed.
 
 > *Note*: if you do not have go installed on your machine you can still run the `sinkholecli` tool using docker:
 >
@@ -103,7 +103,7 @@ Please see the section on configuring plugins in the [plugin documentation](http
 
 ### Configuring the JWT secret
 
-The JWT secret is passed to sinkholed as an environment variable: `SINKHOLED_JWT_SECRET`. See the [Generating a JWT secret](#Generating-a-JWT-secret) section for instructions. Ensure that this variable is exported into your environment before launching sinkholed.
+The JWT secret is passed to sinkholed as an environment variable: `SINKHOLED_JWTSECRET`. See the [Generating a JWT secret](#Generating-a-JWT-secret) section for instructions. Ensure that this variable is exported into your environment before launching sinkholed.
 
 
 ## Deploying using docker
@@ -114,7 +114,7 @@ To build a production release, install any plugins required into the [plugins/](
 
 ### Running the build
 
-As the config file is packaged into the docker container by default you can simply run the build however you like, making sure to pass the `SINKHOLED_JWT_SECRET` environment variable so that you can authenticate to the API.
+As the config file is packaged into the docker container by default you can simply run the build however you like, making sure to pass the `SINKHOLED_JWTSECRET` environment variable so that you can authenticate to the API.
 
 If you would like to override the config file in the container, simply mount a different one to `/etc/sinkholed/sinkholed.yml` when you run your container.
 
@@ -149,7 +149,7 @@ And here is an accompanying config file, placed in `/etc/sinkholed/sinkholed.yml
 ---
 ## sinkholed example config
 #
-# Please provide the JWT secret key as an environment variable named SINKHOLED_JWT_SECRET
+# Please provide the JWT secret key as an environment variable named SINKHOLED_JWTSECRET
 
 # Address to bind API to
 # note: this is inside the docker container, we aren't binding to all adapters on host
@@ -210,7 +210,7 @@ Usage of `./bin/sinkholecli gensecret`:
         
 Usage of `./bin/sinkholecli genjwt`:
 
-*Note:* Requires the `SINKHOLED_JWT_SECRET` environment variable to be set.
+*Note:* Requires the `SINKHOLED_JWTSECRET` environment variable to be set.
 
 | CLI arg        | Description                                          |
 | -              | -                                                    |
