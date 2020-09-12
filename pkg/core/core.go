@@ -13,7 +13,7 @@ type Sample struct {
     // Sha256 of the Data
     Sha256 string `json:"sha256"`
     // Original file name
-    FileName string
+    FileName string `json:"filename"`
 }
 
 // Metadata is defined as an interface{} so that we can use any method for attaching 

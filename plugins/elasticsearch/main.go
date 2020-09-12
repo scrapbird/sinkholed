@@ -46,6 +46,7 @@ const indexMapping = `{
 
 type esSample struct {
     Sha256 string `json:"sha256"`
+    FileName string `json:"filename"`
 }
 
 type esMetadata interface{}
@@ -171,6 +172,7 @@ func (p *esPlugin) Init(cfg *viper.Viper, downstream chan<- *core.Event) error {
                 for i := range event.Samples {
                     var sample esSample
                     sample.Sha256 = event.Samples[i].Sha256
+                    sample.FileName = event.Samples[i].FileName
                     esEvent.Samples = append(esEvent.Samples, sample)
                 }
                 esEvent.Type = event.Type
